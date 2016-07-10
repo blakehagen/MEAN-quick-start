@@ -34,25 +34,23 @@ gulp.task('clean-build', function () {
 //  CHECK ALL JS CODE WITH JSHINT & JSCS //
 gulp.task('js-check', function (done) {
   log('Checking JS files with jshint and jscs...');
-  var stream = gulp.src(config.appJS)
+  return gulp.src(config.appJS)
     .pipe(gulpif(args.verbose, gprint()))
     .pipe(jscs())
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish', {verbose: true}))
     .pipe(jshint.reporter('fail'));
-  return stream;
 });
 
 gulp.task('template-cache', function (done) {
   log('Creating Angular $templateCache...');
-  var stream = gulp.src(config.htmlTemplates)
+  return gulp.src(config.htmlTemplates)
     .pipe(minifyHtml({empty: true}))
     .pipe(angularTemplateCache(
       config.templateCache.file,
       config.templateCache.options
     ))
     .pipe(gulp.dest(config.build + 'templates'));
-  return stream;
 });
 
 // CONCAT, STRIP & MINIFY VENDOR JS  --> BUILD //
