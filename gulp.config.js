@@ -16,18 +16,22 @@ module.exports = function () {
       public + 'js/vendor/**/*.js'
     ],
     build: './build/',
+    css: public + 'styles/appStyles/**/*.css',
+    cssVendor: public + 'styles/vendorStyles/**/*.css',
     htmlTemplates: public + 'js/app/**/*.html',
+    index: public + 'index.html',
+    less: [
+      public + 'styles/vendorStyles/**/*.less',
+      public + 'styles/appStyles/**/*.less'
+    ],
     templateCache: {
       file: 'templates.js',
       options: {
         module: 'quickStartTemplate',
         standAlone: false,
-        root: './'
+        root: './app'
       }
     }
-
-
   };
-
   return config;
 };

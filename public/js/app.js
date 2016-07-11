@@ -3,11 +3,10 @@ angular.module('quickStartTemplate', ['ui.router']).config(function ($stateProvi
   $stateProvider
     .state('example', {
       url: '/example',
-      templateUrl: './js/app/features/example/exampleTmpl.html',
+      templateUrl: './app/features/example/exampleTmpl.html',
       controller: 'exampleCtrl as example'
     });
 
   $urlRouterProvider
-    .otherwise('/');
-
+    .otherwise('/example');
 });

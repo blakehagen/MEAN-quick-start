@@ -8,6 +8,11 @@ const gprint               = require('gulp-print');
 const gulpif               = require('gulp-if');
 const gconcat              = require('gulp-concat');
 const minifyHtml           = require('gulp-minify-html');
+const minifyCss            = require('gulp-minify-css');
+const less                 = require('gulp-less');
+const inject               = require('gulp-inject');
+const autoprefixer         = require('gulp-autoprefixer');
+const plumber              = require('gulp-plumber');
 const angularTemplateCache = require('gulp-angular-templatecache');
 const uglify               = require('gulp-uglify');
 const strip                = require('gulp-strip-debug');
@@ -76,10 +81,57 @@ gulp.task('optimize-appJs', ['js-check'], function (done) {
   done();
 });
 
-
 // OPTIMIZE VENDOR AND APP JS --> BUILD //
 gulp.task('optimize-js', ['js-check', 'template-cache', 'optimize-appJs', 'optimize-vendorJs'], function () {
   log('OPTIMIZING ALL JS...');
+});
+
+// COMPILE LESS --> CSS, CONCAT & MINIFY --> BUILD //
+gulp.task('compile-less', function () {
+  log('Compiling LESS --> CSS...');
+  return gulp.src(config.less)
+    .pipe(plumber())
+    .pipe(less())
+    .pipe(gconcat('app.css'))
+    .pipe(minifyCss())
+    .pipe(autoprefixer({browsers: ['last 2 version', '> 5%']}))
+    .pipe(gulp.dest(config.build + 'styles'));
+});
+
+// CONCAT & MINIFY VENDOR CSS  --> BUILD //
+gulp.task('optimize-vendor-css', function () {
+  log('Concat and minify VENDOR CSS...');
+  gulp.src(config.cssVendor)
+    .pipe(gconcat('lib.css'))
+    .pipe(minifyCss())
+    .pipe(gulp.dest(config.build + 'styles'));
+});
+
+// OPTIMIZE ALL STYLES --> BUILD //
+gulp.task('optimize-styles', ['compile-less', 'optimize-vendor-css'], function () {
+  log('OPTIMIZING ALL STYLES...');
+});
+
+// INJECT FILES TO BUILD INDEX //
+gulp.task('inject', ['optimize-js', 'optimize-styles'], function () {
+  log('Injecting assets into build index...');
+  var templateCache = config.build + 'templates/' + config.templateCache.file;
+  var jsLib         = config.build + 'js/lib.js';
+  var jsApp         = config.build + 'js/app.js';
+  var cssLib        = config.build + 'styles/lib.css';
+  var cssApp        = config.build + 'styles/app.css';
+
+  return gulp.src(config.index)
+    .pipe(plumber())
+    .pipe(inject(gulp.src(templateCache, {read: false}), {
+      starttag: '<!-- inject:templates:js -->',
+      ignorePath: 'build'
+    }))
+    .pipe(inject(gulp.src(jsLib, {read: false}), {starttag: '<!-- inject:lib:js -->', ignorePath: 'build'}))
+    .pipe(inject(gulp.src(jsApp, {read: false}), {starttag: '<!-- inject:app:js -->', ignorePath: 'build'}))
+    .pipe(inject(gulp.src(cssLib, {read: false}), {starttag: '  <!-- inject:lib:css -->', ignorePath: 'build'}))
+    .pipe(inject(gulp.src(cssApp, {read: false}), {starttag: '<!-- inject:app:css -->', ignorePath: 'build'}))
+    .pipe(gulp.dest(config.build));
 });
 
 
