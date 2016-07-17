@@ -18,6 +18,9 @@ module.exports = () => {
     resave: false,
     saveUninitialized: true
   }));
+
+  console.log('hello from express config!');
+
   app.use(express.static('build'));
   return app;
 };

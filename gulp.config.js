@@ -18,12 +18,15 @@ module.exports = function () {
     build: './build/',
     css: public + 'styles/appStyles/**/*.css',
     cssVendor: public + 'styles/vendorStyles/**/*.css',
+    defaultPort: 3500,
     htmlTemplates: public + 'js/app/**/*.html',
     index: public + 'index.html',
     less: [
       public + 'styles/vendorStyles/**/*.less',
       public + 'styles/appStyles/**/*.less'
     ],
+    nodeServer: 'server.js',
+    server: ['server.js','./server'],
     templateCache: {
       file: 'templates.js',
       options: {

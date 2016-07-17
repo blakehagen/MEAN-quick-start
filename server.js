@@ -12,6 +12,8 @@ app.get('/api/v1/test', (req, res) => {
   res.status(200).send('Light \'em up! We good to go!');
 });
 
+console.log('hello from server.js!');
+
 // PORT //
 const port = process.env.PORT || 5500;
 app.listen(port, () => {

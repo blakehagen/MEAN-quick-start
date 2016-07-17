@@ -1,4 +1,7 @@
 'use strict';
+// GULP CONFIG FILE //
+const config = require('./gulp.config')();
+
 const gulp                 = require('gulp');
 const taskList             = require('gulp-task-listing');
 const jshint               = require('gulp-jshint');
@@ -17,12 +20,11 @@ const angularTemplateCache = require('gulp-angular-templatecache');
 const uglify               = require('gulp-uglify');
 const strip                = require('gulp-strip-debug');
 const ngAnnotate           = require('gulp-ng-annotate');
+const gnodemon             = require('gulp-nodemon');
 const args                 = require('yargs').argv;
 const del                  = require('del');
-
-
-// GULP CONFIG FILE //
-const config = require('./gulp.config')();
+const browserSync          = require('browser-sync');
+const port                 = process.env.PORT || config.defaultPort;
 
 // DEFAULT GULP CHECK & LIST GULP TASKS //
 gulp.task('default', function () {
@@ -134,10 +136,87 @@ gulp.task('inject', ['optimize-js', 'optimize-styles'], function () {
     .pipe(gulp.dest(config.build));
 });
 
+// OPTIMIZE BUILD //
+gulp.task('build', ['inject'], function () {
+  log('Serving up the awesomeness...');
+  serve();
+});
+
 
 // ================ //
 // ==== HELPERS === //
 // ================ //
+
+
+// SERVE IT UP //
+function serve() {
+  var nodeOptions = {
+    script: config.nodeServer,
+    delayTime: 1,
+    // env: {
+    //   'NODE_ENV': 'dev'
+    // },
+    watch: [config.server]
+  };
+  return gnodemon(nodeOptions)
+    .on('restart', ['inject'], function (ev) {
+      log('**** nodemon restarted ****');
+      log('files changed on restart:\n' + ev);
+      setTimeout(function () {
+        browserSync.notify('reloading...');
+        browserSync.reload();
+      })
+    })
+    .on('start', function () {
+      log('**** nodemon started ****');
+      startBrowserSync();
+    })
+    .on('crash', function () {
+      log('**** nodemon crashed ****');
+    })
+    .on('exit', function () {
+      log('**** nodemon exited ****');
+    });
+}
+
+function changeEvent(event) {
+  log('File ===> ' + event.path + ' ' + event.type);
+}
+
+function startBrowserSync() {
+  console.log('browserSync Active? ', browserSync.active);
+  if (args.nosync || browserSync.active) {
+    return;
+  }
+  log('Starting browserSync on port ' + port);
+
+  // if (isDev) {
+  //   gulp.watch([config.less], ['styles'])
+  //     .on('change', function (event) {
+  //       changeEvent(event);
+  //     });
+  // } else {
+  //   gulp.watch([config.less, config.appJS, config.html], ['optimize', browserSync.reload])
+  //     .on('change', function (event) {
+  //       changeEvent(event);
+  //     });
+  // }
+  gulp.watch([config.less, config.css, config.appJS, config.htmlTemplates], ['inject', browserSync.reload])
+    .on('change', function (event) {
+      changeEvent(event);
+      console.log('hi');
+    });
+
+  var options = {
+    proxy: 'localhost:' +  port,
+    port: 3300,
+    injectChanges: true,
+    logFileChanges: true,
+    notify: true,
+    reloadDelay: 1000
+  };
+  browserSync(options);
+}
 
 // LOG FUNCTION //
 function log(msg) {

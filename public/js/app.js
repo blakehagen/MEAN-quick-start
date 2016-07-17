@@ -1,5 +1,7 @@
 angular.module('quickStartTemplate', ['ui.router']).config(function ($stateProvider, $urlRouterProvider) {
 
+  console.log('test');
+
   $stateProvider
     .state('example', {
       url: '/example',
