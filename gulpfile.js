@@ -1,7 +1,6 @@
 'use strict';
 // GULP CONFIG FILE //
 const config = require('./gulp.config')();
-
 const gulp                 = require('gulp');
 const taskList             = require('gulp-task-listing');
 const jshint               = require('gulp-jshint');
@@ -34,8 +33,10 @@ gulp.task('default', function () {
 });
 
 // CLEAN BUILD FOLDER //
-gulp.task('clean-build', function () {
+gulp.task('clean-build', function (done) {
   clean(config.build);
+  log('Cleaning up your mess...');
+  done();
 });
 
 //  CHECK ALL JS CODE WITH JSHINT & JSCS //
@@ -137,7 +138,7 @@ gulp.task('inject', ['optimize-js', 'optimize-styles'], function () {
 });
 
 // OPTIMIZE BUILD //
-gulp.task('build', ['inject'], function () {
+gulp.task('build', ['clean-build','inject'], function () {
   log('Serving up the awesomeness...');
   serve();
 });
@@ -153,19 +154,20 @@ function serve() {
   var nodeOptions = {
     script: config.nodeServer,
     delayTime: 1,
-    // env: {
-    //   'NODE_ENV': 'dev'
-    // },
+    env: {
+      'PORT': port,
+      'NODE_ENV': 'dev'
+    },
     watch: [config.server]
   };
   return gnodemon(nodeOptions)
-    .on('restart', ['inject'], function (ev) {
+    .on('restart', function (ev) {
       log('**** nodemon restarted ****');
       log('files changed on restart:\n' + ev);
       setTimeout(function () {
         browserSync.notify('reloading...');
-        browserSync.reload();
-      })
+        browserSync.reload({steam:false});
+      }, 1000);
     })
     .on('start', function () {
       log('**** nodemon started ****');
@@ -209,7 +211,8 @@ function startBrowserSync() {
 
   var options = {
     proxy: 'localhost:' +  port,
-    port: 3300,
+    port: 3000,
+    files: [config.public + '**/*.*'],
     injectChanges: true,
     logFileChanges: true,
     notify: true,

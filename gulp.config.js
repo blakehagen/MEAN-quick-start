@@ -18,7 +18,7 @@ module.exports = function () {
     build: './build/',
     css: public + 'styles/appStyles/**/*.css',
     cssVendor: public + 'styles/vendorStyles/**/*.css',
-    defaultPort: 3500,
+    defaultPort: 5500,
     htmlTemplates: public + 'js/app/**/*.html',
     index: public + 'index.html',
     less: [
