@@ -4,6 +4,8 @@
 const babel       = require('babel-core').transform('code');
 const express     = require('./server/config/express.js');
 const environment = process.env.NODE_ENV;
+// require('./server/config/db.js')();
+
 
 // RUN EXPRESS //
 const app = express();
