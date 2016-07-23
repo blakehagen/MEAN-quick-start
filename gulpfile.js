@@ -85,12 +85,12 @@ gulp.task('optimize-appJs', ['js-check'], function (done) {
 });
 
 // OPTIMIZE VENDOR AND APP JS --> BUILD //
-gulp.task('optimize-js', ['js-check', 'template-cache', 'optimize-appJs', 'optimize-vendorJs'], function () {
+gulp.task('optimize-js', ['template-cache', 'optimize-appJs', 'optimize-vendorJs'], function () {
   log('OPTIMIZING ALL JS...');
 });
 
 // COMPILE LESS --> CSS, CONCAT & MINIFY --> BUILD //
-gulp.task('compile-less', function () {
+gulp.task('compile-less', function (done) {
   log('Compiling LESS --> CSS...');
   return gulp.src(config.less)
     .pipe(plumber())
@@ -99,15 +99,17 @@ gulp.task('compile-less', function () {
     .pipe(minifyCss())
     .pipe(autoprefixer({browsers: ['last 2 version', '> 5%']}))
     .pipe(gulp.dest(config.build + 'styles'));
+  done();
 });
 
 // CONCAT & MINIFY VENDOR CSS  --> BUILD //
-gulp.task('optimize-vendor-css', function () {
+gulp.task('optimize-vendor-css', function (done) {
   log('Concat and minify VENDOR CSS...');
   gulp.src(config.cssVendor)
     .pipe(gconcat('lib.css'))
     .pipe(minifyCss())
     .pipe(gulp.dest(config.build + 'styles'));
+  done();
 });
 
 // OPTIMIZE ALL STYLES --> BUILD //
@@ -138,7 +140,7 @@ gulp.task('inject', ['optimize-js', 'optimize-styles'], function () {
 });
 
 // OPTIMIZE BUILD //
-gulp.task('build', ['clean-build','inject'], function () {
+gulp.task('build', ['inject'], function () {
   log('Serving up the awesomeness...');
   serve();
 });
