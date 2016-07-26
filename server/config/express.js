@@ -12,7 +12,8 @@ module.exports = () => {
 
   app.use(logger('dev'));
   app.use(cors());
-  app.use(bodyParser.urlencoded({extended: false}));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({extended: true}));
   app.use(session({
     secret: 'thisismysecretdonttellanyone1234aaa',
     resave: false,
